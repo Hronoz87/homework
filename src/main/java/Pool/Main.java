@@ -1,30 +1,25 @@
 package Pool;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class Main {
-    public static void main(String[] args)  {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        Callable<Integer> callable = new MyCallable();
+        Callable<Integer> callable1 = new MyCallable();
+        Callable<Integer> callable2 = new MyCallable();
+        Callable<Integer> callable3 = new MyCallable();
 
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        final ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
-        List<Future<String>> list = new ArrayList<>();
 
-        Callable<String> callable = new MyCallable();
-        for (int i = 0; i < 4; i++) {
-            Future<String> future = executor.submit(callable);
-            list.add(future);
-        }
-        for (Future<String> fut : list) {
-            try {
-                System.out.println(fut.get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
+        final Future<Integer> task = threadPool.submit(callable);
+        final Future<Integer> task1 = threadPool.submit(callable1);
+        final Future<Integer> task2= threadPool.submit(callable2);
+        final Future<Integer> task3 = threadPool.submit(callable3);
 
-        executor.shutdown();
+        final Integer resultOfTask = task.get() + task1.get() + task2.get() + task3.get();
 
+        threadPool.shutdown();
+        System.out.println("Результат выполнения равен = " + resultOfTask);
     }
 }
